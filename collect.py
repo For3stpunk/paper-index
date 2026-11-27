@@ -180,9 +180,12 @@ def src_arxiv(day):
             time.sleep(15 * tries)
             root = ET.fromstring(get(url, timeout=180))
             entries = root.findall("a:entry", ns)
-        NOTES["arxiv"] = f"arXiv reports {total} submissions"
-        if not entries:
+        NOTES["arxiv"] = (f"arXiv reports {total} submissions" if total else
+                          "nothing announced yet for this day (arXiv lists submissions once announced; re-collected later)")
+        if not entries and total:
             raise RuntimeError(f"arXiv stopped returning results at {start} of {total}")
+        if not total:
+            break
         for e in entries:
             aid = re.sub(r"v\d+$", "", e.findtext("a:id", "", ns).rsplit("/abs/", 1)[-1])
             prim = e.find("x:primary_category", ns)
@@ -521,32 +524,39 @@ def write_day(day, items, status):
            "count": len(items), "kinds": kinds, "status": status, "items": items}
     with open(os.path.join(DATA, f"{day}.json"), "w") as f:
         json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
-    return {"date": day, "count": len(items), "kinds": kinds,
+    summary = {"date": day, "count": len(items), "kinds": kinds,
             "sources": dict(sorted(sources.items(), key=lambda x: -x[1])[:40]),
             "errors": [k for k, v in status.items() if not v["status"].startswith("ok")],
             "generated": doc["generated"]}
+    os.makedirs(os.path.join(DATA, "sum"), exist_ok=True)
+    json.dump(summary, open(os.path.join(DATA, "sum", f"{day}.json"), "w"), ensure_ascii=False)
+    return summary
 
-def update_index(summaries):
-    path = os.path.join(DATA, "index.json")
-    idx = {"days": []}
-    if os.path.exists(path):
-        idx = json.load(open(path))
-    byday = {d["date"]: d for d in idx.get("days", [])}
-    for s in summaries:
-        byday[s["date"]] = s
-    idx["days"] = sorted(byday.values(), key=lambda d: d["date"], reverse=True)
-    idx["sources"] = [{"key": k, "label": l} for k, l, _ in SOURCES]
-    idx["updated"] = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-    json.dump(idx, open(path, "w"), ensure_ascii=False, indent=0)
-    json.dump({"updated": idx["updated"], "dates": [s["date"] for s in summaries]},
-              open(os.path.join(DATA, "manifest.json"), "w"))
+RUN_DATES = os.path.join(ROOT, ".run-dates.json")  # not committed
+
+def reindex():
+    """Rebuild index.json from docs/data/sum/*.json, and manifest.json from this run's dates."""
+    sumdir = os.path.join(DATA, "sum")
+    days = []
+    for fn in sorted(os.listdir(sumdir)) if os.path.isdir(sumdir) else []:
+        if fn.endswith(".json") and os.path.exists(os.path.join(DATA, fn)):
+            days.append(json.load(open(os.path.join(sumdir, fn))))
+    now = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    idx = {"updated": now, "sources": [{"key": k, "label": l} for k, l, _ in SOURCES],
+           "days": sorted(days, key=lambda d: d["date"], reverse=True)}
+    json.dump(idx, open(os.path.join(DATA, "index.json"), "w"), ensure_ascii=False, indent=0)
+    run = json.load(open(RUN_DATES)) if os.path.exists(RUN_DATES) else []
+    json.dump({"updated": now, "dates": run}, open(os.path.join(DATA, "manifest.json"), "w"))
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", action="append", help="YYYY-MM-DD (repeatable)")
     ap.add_argument("--days-ago", default="1", help="comma list of offsets from today UTC, e.g. 1,4")
     ap.add_argument("--only", help="comma list of source keys")
+    ap.add_argument("--reindex", action="store_true", help="only rebuild index.json and manifest.json")
     a = ap.parse_args()
+    if a.reindex:
+        return reindex()
     today = dt.datetime.utcnow().date()
     days = a.date or [(today - dt.timedelta(days=int(n))).isoformat() for n in a.days_ago.split(",") if n.strip()]
     only = set(a.only.split(",")) if a.only else None
@@ -555,7 +565,8 @@ def main():
         items, status = collect(day, only)
         summaries.append(write_day(day, items, status))
         print(f"== {day}: {len(items)} unique records", flush=True)
-    update_index(summaries)
+    json.dump(days, open(RUN_DATES, "w"))
+    reindex()
 
 if __name__ == "__main__":
     main()

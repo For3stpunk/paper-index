@@ -2,7 +2,7 @@ name: Daily paper index
 
 on:
   schedule:
-    - cron: "23 6 * * *"   # 06:23 UTC: indexes yesterday (UTC) and refreshes 4 days ago for late deposits
+    - cron: "23 6 * * *"   # 06:23 UTC: indexes yesterday (UTC) and re-collects 4 and 8 days ago (arXiv announcements, late Crossref/DataCite deposits)
   workflow_dispatch:
     inputs:
       date:
@@ -27,6 +27,8 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -35,16 +37,21 @@ jobs:
           OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
         run: |
           ARGS=""
-          if [ -n "${{ github.event.inputs.date }}" ]; then ARGS="$ARGS --date ${{ github.event.inputs.date }}"; else ARGS="$ARGS --days-ago 1,4"; fi
+          if [ -n "${{ github.event.inputs.date }}" ]; then ARGS="$ARGS --date ${{ github.event.inputs.date }}"; else ARGS="$ARGS --days-ago 1,4,8"; fi
           if [ -n "${{ github.event.inputs.only }}" ]; then ARGS="$ARGS --only ${{ github.event.inputs.only }}"; fi
           python collect.py $ARGS
       - name: Commit data
         run: |
           git config user.name "paper-index bot"
           git config user.email "actions@users.noreply.github.com"
+          # Day files are ours; index.json/manifest.json are rebuilt after syncing so parallel runs can't clobber each other.
+          git checkout -- docs/data/index.json docs/data/manifest.json 2>/dev/null || true
           git add docs
-          git commit -m "Index $(date -u +%F)" || echo "nothing to commit"
-          git pull --rebase -X ours || true
+          git commit -m "Index $(cat .run-dates.json)" || echo "nothing to commit"
+          git pull --rebase -X theirs
+          python collect.py --reindex
+          git add docs
+          git commit -m "Rebuild index" || true
           git push
       - uses: actions/upload-pages-artifact@v3
         with:
