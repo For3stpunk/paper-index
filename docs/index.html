@@ -30,7 +30,7 @@ button:hover{background:var(--ink);color:var(--bg)}
 button:disabled{opacity:.35;cursor:default;background:var(--bg);color:var(--ink)}
 :focus-visible{outline:3px solid var(--red);outline-offset:2px}
 .board{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,56px);margin-top:28px;padding-top:24px;border-top:2px solid var(--ink)}
-.total{font:800 clamp(72px,14vw,176px)/.9 Archivo,system-ui,sans-serif;font-stretch:112%;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.total{padding-bottom:.14em;font:800 clamp(72px,14vw,176px)/.9 Archivo,system-ui,sans-serif;font-stretch:112%;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .sub{color:var(--mute);margin:10px 0 18px}
 .kinds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
 .kinds div{padding:10px 0;border-bottom:1px solid var(--line)}
@@ -49,6 +49,8 @@ button:disabled{opacity:.35;cursor:default;background:var(--bg);color:var(--ink)
 .controls{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--ink);padding-block:14px}
 .ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .ctl input[type=search]{flex:1 1 260px}
+.ctl select{flex:0 1 260px;width:260px;max-width:100%}
+@media(max-width:600px){.ctl select{flex:1 1 100%;width:100%}}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{min-height:40px;border-width:1.5px;font-weight:600}
 .chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
@@ -143,7 +145,7 @@ async function loadIndex(){
     return;
   }
   $('day').innerHTML = index.days.map(d => `<option value="${esc(d.date)}">${esc(longDate(d.date))} · ${fmt(d.count)}</option>`).join('');
-  $('srcList').innerHTML = (index.sources || []).map(s => `<li>${esc(s.label)}</li>`).join('');
+  $('srcList').innerHTML = (index.sources || []).map(s => `<li>${esc(s.label)}${s.key === 'philarchive' ? ' (new and updated records)' : ''}</li>`).join('');
   $('updated').textContent = 'Last updated ' + new Date(index.updated).toLocaleString();
   const want = location.hash.slice(1);
   openDay(index.days.some(d => d.date === want) ? want : index.days[0]?.date);
