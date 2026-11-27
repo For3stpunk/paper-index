@@ -2,31 +2,60 @@
 "days": [
 {
 "date": "2026-11-25",
-"count": 7548,
+"count": 9608,
 "kinds": {
-"preprint": 3454,
-"thesis": 411,
-"report": 645,
-"paper": 3038
+"preprint": 5007,
+"paper": 3508,
+"thesis": 414,
+"report": 679
 },
 "sources": {
 "Zenodo": 5132,
 "arXiv": 1391,
-"HAL": 410,
-"DataCite": 358,
+"Research Square": 837,
+"PhilArchive": 470,
+"HAL": 412,
+"DataCite": 360,
+"Preprints.org": 176,
 "bioRxiv": 169,
+"openRxiv": 138,
+"The Conversation Media Group Ltd": 88,
+"ChemRxiv": 61,
 "medRxiv": 41,
+"PsyArXiv": 35,
+"Copernicus GmbH": 31,
 "IACR ePrint": 28,
-"PhilSci-Archive": 19
+"American Association for Cancer Research (AACR)": 28,
+"SocArXiv": 24,
+"PhilSci-Archive": 19,
+"Springer Science and Business Media LLC": 15,
+"Front Matter": 13,
+"XSci Ltd.": 11,
+"JMIR Publications Inc.": 11,
+"Mongabay": 9,
+"Universidad Estatal Amazónica": 9,
+"Authorea": 7,
+"Optica Publishing Group": 6,
+"EarthArXiv": 6,
+"Editora da Universidade de Vassouras": 6,
+"eLife Sciences Publications, Ltd": 5,
+"F1000 Research Ltd": 5,
+"INPLASY - International Platform of Registered Systematic Re": 5,
+"EcoEvoRxiv": 4,
+"Cambridge Open Engage": 4,
+"Polygence": 4,
+"Recognition Physics Research Institute": 3,
+"Society for Artistic Research": 3,
+"CESifo": 3,
+"OSF Preprints": 2,
+"Geological Society of America": 2,
+"FapUNIFESP (SciELO)": 2
 },
 "errors": [
-"crossref_preprints",
-"crossref_reports",
-"crossref_theses",
 "openalex_theses",
 "openalex_reports"
 ],
-"generated": "2026-11-27T11:59:03Z"
+"generated": "2026-11-27T12:16:24Z"
 }
 ],
 "sources": [
@@ -87,5 +116,5 @@
 "label": "OpenAlex reports"
 }
 ],
-"updated": "2026-11-27T12:03:55Z"
+"updated": "2026-11-27T12:16:24Z"
 }
