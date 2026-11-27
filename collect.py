@@ -227,6 +227,19 @@ def src_philarchive(day):
         try:
             recs = [dc_record(r, "PhilArchive", "paper", "Philosophy") for r in oai_records(base, day)]
             NOTES["philarchive"] = f"via {base}"
+            if not recs:  # diagnose: what does the endpoint say about itself and the past week?
+                try:
+                    ident = get(base + "?verb=Identify").decode("utf-8", "replace")
+                    gran = re.search(r"<granularity>(.*?)<", ident)
+                    early = re.search(r"<earliestDatestamp>(.*?)<", ident)
+                    wk = (dt.date.fromisoformat(day) - dt.timedelta(days=7)).isoformat()
+                    li = get(base + "?" + urllib.parse.urlencode({"verb": "ListIdentifiers", "metadataPrefix": "oai_dc", "from": wk})).decode("utf-8", "replace")
+                    stamps = re.findall(r"<datestamp>(.*?)<", li)
+                    NOTES["philarchive"] += (f"; granularity {gran and gran.group(1)}, earliest {early and early.group(1)}, "
+                                             f"{len(stamps)} ids since {wk}, latest {max(stamps) if stamps else 'none'}; "
+                                             f"head {li[:160]!r}")
+                except Exception as e:
+                    NOTES["philarchive"] += f"; diagnose failed: {e}"
             return recs
         except Exception as e:
             errs.append(f"{base}: {str(e)[:100]}")
