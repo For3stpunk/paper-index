@@ -1,6 +1,64 @@
 {
 "days": [
 {
+"date": "2026-11-26",
+"count": 9138,
+"kinds": {
+"preprint": 3340,
+"paper": 4331,
+"thesis": 726,
+"report": 741
+},
+"sources": {
+"Zenodo": 5297,
+"PhilArchive": 1511,
+"DataCite": 727,
+"Research Square": 555,
+"HAL": 240,
+"Preprints.org": 194,
+"bioRxiv": 147,
+"ChemRxiv": 94,
+"The Conversation Media Group Ltd": 72,
+"openRxiv": 46,
+"medRxiv": 41,
+"Copernicus GmbH": 38,
+"IACR ePrint": 34,
+"Cifra Ltd – Russian Agency for Digital Standardization (RADS": 15,
+"XSci Ltd.": 13,
+"Cambridge Open Engage": 13,
+"Front Matter": 8,
+"EcoEvoRxiv": 8,
+"Microbiology Society": 7,
+"eLife Sciences Publications, Ltd": 6,
+"Mongabay": 5,
+"Even3": 5,
+"GARCH Quant LLC": 4,
+"Optica Publishing Group": 4,
+"Authorea": 4,
+"JMIR Publications Inc.": 4,
+"MIT Press": 3,
+"PsyArXiv": 3,
+"Springer Science and Business Media LLC": 3,
+"Shenzhen Medical Academy of Research and Translation": 2,
+"Banco de la Republica Colombia": 2,
+"F1000 Research Ltd": 2,
+"SocArXiv": 2,
+"Cassyni": 2,
+"EarthArXiv": 2,
+"East Asia Forum": 2,
+"Default: Universitätsbibliothek J. C. Senckenberg, Frankfurt": 2,
+"CESifo": 2,
+"Tsinghua University Press": 1,
+"TMR Publishing Group": 1
+},
+"errors": [
+"arxiv",
+"openalex_theses",
+"openalex_reports"
+],
+"generated": "2026-11-27T12:28:49Z"
+},
+{
 "date": "2026-11-25",
 "count": 9608,
 "kinds": {
