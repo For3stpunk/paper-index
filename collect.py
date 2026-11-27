@@ -34,8 +34,12 @@ def get(url, tries=4, accept=None, timeout=90):
                 return body
         except urllib.error.HTTPError as e:
             last = e
-            if e.code in (400, 401, 403, 404):
-                raise
+            if e.code in (400, 401, 403, 404, 409):
+                try:
+                    body = e.read()[:300].decode("utf-8", "replace")
+                except Exception:
+                    body = ""
+                raise RuntimeError(f"HTTP {e.code} from {url.split('?')[0]}: {body}") from None
             time.sleep(5 * (i + 1) + (20 if e.code in (429, 503) else 0))
         except Exception as e:  # timeouts, resets
             last = e
@@ -98,7 +102,13 @@ def oai_records(base, day, prefix="oai_dc", sleep=1.0, set_=None):
         params["set"] = set_
     url = base + "?" + urllib.parse.urlencode(params)
     while url:
-        root = ET.fromstring(get(url))
+        raw = get(url)
+        try:
+            root = ET.fromstring(raw)
+        except ET.ParseError:
+            raise RuntimeError(f"not an OAI-PMH response from {base}: {raw[:120]!r}")
+        if not root.tag.endswith("OAI-PMH"):
+            raise RuntimeError(f"not an OAI-PMH response from {base}: root {root.tag}")
         err = root.find("o:error", ns)
         if err is not None:
             if err.get("code") == "noRecordsMatch":
@@ -137,6 +147,8 @@ def dc_record(r, source, kind_default="paper", field=""):
                u=url, doi=doi, x=(dc_all(r, "description") or [""])[0],
                f=field or (subj[0] if subj else ""))
 
+NOTES = {}  # per-source extra info for status.json
+
 # ---------------------------------------------------------------- sources
 ARXIV_GROUPS = {
     "cs": "Computer science", "math": "Mathematics", "stat": "Statistics", "q-bio": "Quantitative biology",
@@ -160,12 +172,15 @@ def src_arxiv(day):
         root = ET.fromstring(get(url, timeout=180))
         total = int(root.findtext("os:totalResults", "0", ns))
         entries = root.findall("a:entry", ns)
-        if not entries and start < total:
-            time.sleep(10)  # arXiv occasionally returns an empty page; retry once
+        tries = 0
+        while not entries and start < total and tries < 5:
+            tries += 1  # arXiv sometimes returns an empty page; wait and ask again
+            time.sleep(15 * tries)
             root = ET.fromstring(get(url, timeout=180))
             entries = root.findall("a:entry", ns)
-            if not entries:
-                break
+        NOTES["arxiv"] = f"arXiv reports {total} submissions"
+        if not entries:
+            raise RuntimeError(f"arXiv stopped returning results at {start} of {total}")
         for e in entries:
             aid = re.sub(r"v\d+$", "", e.findtext("a:id", "", ns).rsplit("/abs/", 1)[-1])
             prim = e.find("x:primary_category", ns)
@@ -179,7 +194,7 @@ def src_arxiv(day):
         start += page
         if start > CAP:
             break
-        time.sleep(3.5)
+        time.sleep(4)
     return out
 
 def src_rxiv(server):
@@ -204,9 +219,18 @@ def src_rxiv(server):
             time.sleep(1)
     return run
 
+PHILARCHIVE_OAI = ["https://philarchive.org/oai.pl", "https://philpapers.org/oai.pl",
+                   "https://philarchive.org/oai", "https://philpapers.org/oai"]
 def src_philarchive(day):
-    return [dc_record(r, "PhilArchive", "paper", "Philosophy")
-            for r in oai_records("https://philarchive.org/oai.pl", day)]
+    errs = []
+    for base in PHILARCHIVE_OAI:
+        try:
+            recs = [dc_record(r, "PhilArchive", "paper", "Philosophy") for r in oai_records(base, day)]
+            NOTES["philarchive"] = f"via {base}"
+            return recs
+        except Exception as e:
+            errs.append(f"{base}: {str(e)[:100]}")
+    raise RuntimeError(" | ".join(errs))
 
 def src_philsci(day):
     return [dc_record(r, "PhilSci-Archive", "preprint", "Philosophy of science")
@@ -299,14 +323,12 @@ def src_crossref(ctype, kind, datefilter):
         while True:
             url = "https://api.crossref.org/works?" + urllib.parse.urlencode(
                 {"filter": filt, "rows": 1000, "cursor": cursor, "mailto": MAILTO,
-                 "select": "DOI,title,author,publisher,subject,abstract,URL,group-title,institution,relation"})
+                 **({} if ctype == "dissertation" else
+                    {"select": "DOI,title,author,publisher,subject,abstract,URL,group-title"})})
             j = getjson(url, timeout=180)["message"]
             items = j.get("items", [])
             for it in items:
                 doi = norm_doi(it.get("DOI"))
-                rel = it.get("relation") or {}
-                if "is-version-of" in rel and ctype == "posted-content":
-                    pass  # still a new posting that day
                 authors = [" ".join(x for x in (a.get("given"), a.get("family")) if x) or a.get("name", "")
                            for a in it.get("author", [])]
                 inst = it.get("institution") or []
@@ -368,12 +390,13 @@ def src_openalex(otype, kind):
     def run(day):
         out, cursor = [], "*"
         key = os.environ.get("OPENALEX_API_KEY")
+        if not key:
+            raise RuntimeError("skipped: add a free OpenAlex API key as the OPENALEX_API_KEY repository secret")
         while cursor:
             params = {"filter": f"from_publication_date:{day},to_publication_date:{day},type:{otype}",
-                      "per_page": 200, "cursor": cursor, "mailto": MAILTO,
+                      "per_page": 100, "cursor": cursor, "mailto": MAILTO,
                       "select": "id,doi,display_name,authorships,primary_location,primary_topic,abstract_inverted_index,ids"}
-            if key:
-                params["api_key"] = key
+            params["api_key"] = key
             j = getjson("https://api.openalex.org/works?" + urllib.parse.urlencode(params), timeout=120)
             res = j.get("results", [])
             for w in res:
@@ -462,6 +485,8 @@ def collect(day, only=None):
         try:
             recs = fn(day)
             status[key] = {"label": label, "status": "ok", "raw": len(recs), "secs": round(time.time() - t0)}
+            if NOTES.get(key):
+                status[key]["note"] = NOTES[key]
             allrecs += recs
         except Exception as e:
             traceback.print_exc()
