@@ -94,10 +94,12 @@ def rec(**k):
         r["x"] = x
     return r
 
-def oai_records(base, day, prefix="oai_dc", sleep=1.0, set_=None):
-    """Yield <record> elements from an OAI-PMH ListRecords harvest for one day."""
+def oai_records(base, day, prefix="oai_dc", sleep=1.0, set_=None, seconds=False):
+    """Yield <record> elements from an OAI-PMH ListRecords harvest for one day.
+    seconds=True for servers with second granularity that read a bare 'until' date as midnight."""
     ns = {"o": "http://www.openarchives.org/OAI/2.0/"}
-    params = {"verb": "ListRecords", "metadataPrefix": prefix, "from": day, "until": day}
+    params = {"verb": "ListRecords", "metadataPrefix": prefix,
+              "from": f"{day}T00:00:00Z" if seconds else day, "until": f"{day}T23:59:59Z" if seconds else day}
     if set_:
         params["set"] = set_
     url = base + "?" + urllib.parse.urlencode(params)
@@ -225,7 +227,7 @@ def src_philarchive(day):
     errs = []
     for base in PHILARCHIVE_OAI:
         try:
-            recs = [dc_record(r, "PhilArchive", "paper", "Philosophy") for r in oai_records(base, day)]
+            recs = [dc_record(r, "PhilArchive", "paper", "Philosophy") for r in oai_records(base, day, seconds=True)]
             NOTES["philarchive"] = f"via {base}"
             if not recs:  # diagnose: what does the endpoint say about itself and the past week?
                 try:

@@ -27,68 +27,6 @@
 "openalex_reports"
 ],
 "generated": "2026-11-27T11:59:03Z"
-},
-{
-"date": "2026-11-20",
-"count": 2956,
-"kinds": {
-"preprint": 2915,
-"report": 41
-},
-"sources": {
-"arXiv": 1349,
-"Research Square": 805,
-"openRxiv": 260,
-"Preprints.org": 151,
-"The Conversation Media Group Ltd": 49,
-"Copernicus GmbH": 43,
-"ChemRxiv": 33,
-"Authorea": 30,
-"PsyArXiv": 29,
-"SocArXiv": 26,
-"engrXiv": 18,
-"EarthArXiv": 15,
-"JMIR Publications Inc.": 14,
-"Front Matter": 13,
-"eLife Sciences Publications, Ltd": 11,
-"Mongabay": 11,
-"Springer Science and Business Media LLC": 9,
-"Psychopharmacology Institute": 9,
-"American Association for Cancer Research (AACR)": 8,
-"University of Ottawa Library": 5,
-"Even3": 4,
-"EcoEvoRxiv": 4,
-"Microbiology Society": 4,
-"American Diabetes Association": 4,
-"INPLASY - International Platform of Registered Systematic Re": 4,
-"Florida International University": 3,
-"Cambridge Open Engage": 3,
-"CESifo": 3,
-"Global Council on Brain Health": 3,
-"EMBL-EBI": 2,
-"XSci Ltd.": 2,
-"Banco de la República": 2,
-"East Asia Forum": 2,
-"UNU-MERIT": 2,
-"Universidad del Rosario": 2,
-"Office of Scientific and Technical Information (OSTI)": 2,
-"The IFS": 2,
-"Radhakundah Institute": 1,
-"Optica Publishing Group": 1,
-"Pensoft Publishers": 1
-},
-"errors": [
-"openalex_theses"
-],
-"generated": "2026-11-27T12:02:02Z"
-},
-{
-"date": "2026-11-19",
-"count": 0,
-"kinds": {},
-"sources": {},
-"errors": [],
-"generated": "2026-11-27T12:03:55Z"
 }
 ],
 "sources": [
