@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Paper Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400;62..125,600;112,800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a reference desk's daily accession register, exact and quiet.
+   IDEA: a railway timetable board, but for the day's new papers; every source is a line, every paper a stop.
+   PICTURE: the day's total as one huge hanging numeral, with a board of per-source bars beside it.
+   COLOUR and TYPE: white, black, signal red, one grey; Archivo wide 800 for figures, Archivo for text.
+   LAYOUT: strict left edge, wide left column for numerals, thick top rule, then filters and the long list. */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0e0e0e);--ink:light-dark(#111,#f2f2f2);--mute:light-dark(#6b6b6b,#9a9a9a);--line:light-dark(#e3e3e3,#2a2a2a);--red:#e4002b;--chip:light-dark(#f3f3f3,#1b1b1b)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Archivo,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+a{color:inherit}
+header.band{border-top:10px solid var(--ink);padding-bottom:0}
+.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between}
+h1{font:800 clamp(32px,5vw,50px)/1.05 Archivo,system-ui,sans-serif;font-stretch:112%;margin:0;text-wrap:balance}
+.nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select,input{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1.5px solid var(--ink);border-radius:0;min-height:44px;padding:0 12px}
+button{cursor:pointer;font-weight:600}
+button:hover{background:var(--ink);color:var(--bg)}
+button:disabled{opacity:.35;cursor:default;background:var(--bg);color:var(--ink)}
+:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.board{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,56px);margin-top:28px;padding-top:24px;border-top:2px solid var(--ink)}
+.total{font:800 clamp(72px,14vw,176px)/.9 Archivo,system-ui,sans-serif;font-stretch:112%;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sub{color:var(--mute);margin:10px 0 18px}
+.kinds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
+.kinds div{padding:10px 0;border-bottom:1px solid var(--line)}
+.kinds b{display:block;font:800 clamp(24px,3vw,32px)/1.1 Archivo,system-ui,sans-serif;font-stretch:112%;font-variant-numeric:tabular-nums}
+.kinds span{color:var(--mute);font-size:14px}
+.rows{display:grid;gap:7px}
+.row{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr) 4.5em;gap:10px;align-items:center;font-size:14px;background:none;border:0;padding:0;min-height:30px;text-align:left;font-weight:400}
+.row:hover{background:var(--chip);color:var(--ink)}
+.row .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .bar{height:14px;background:var(--chip)}
+.row .bar i{display:block;height:100%;background:var(--ink)}
+.row.on .bar i{background:var(--red)}
+.row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.note{font-size:14px;color:var(--mute);margin-top:12px}
+.note .err{color:var(--red)}
+.controls{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:2px solid var(--ink);padding-block:14px}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl input[type=search]{flex:1 1 260px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:40px;border-width:1.5px;font-weight:600}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;margin-top:10px;font-size:14px;color:var(--mute)}
+ol.list{list-style:none;margin:0;padding:0}
+.item{display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}
+.kind{font-size:13px;font-weight:600;padding-top:3px}
+.kind em{display:block;font-style:normal;color:var(--mute);font-weight:400}
+.item h3{font:600 17px/1.35 Archivo,system-ui,sans-serif;margin:0 0 4px}
+.item h3 a{text-decoration:none}.item h3 a:hover{text-decoration:underline;text-decoration-color:var(--red)}
+.by{font-size:14px;margin:0}
+.tags{font-size:13px;color:var(--mute);margin:4px 0 0;display:flex;flex-wrap:wrap;gap:4px 12px}
+.tags code{font:inherit}
+details{margin-top:6px;font-size:14px}
+summary{cursor:pointer;color:var(--mute);min-height:28px}
+details p{margin:4px 0 0;max-width:70ch}
+.more{margin:24px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.empty{padding:48px 0;font-size:17px;max-width:60ch}
+footer{color:var(--mute);font-size:14px;border-top:2px solid var(--ink)}
+footer ul{padding-left:18px;columns:2 280px}
+@media(max-width:760px){.board{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.item{grid-template-columns:minmax(0,1fr);gap:4px}.kind em{display:inline;margin-left:8px}.row{grid-template-columns:minmax(0,8em) minmax(0,1fr) 4em}.controls{position:static}}
+@media(prefers-reduced-motion:no-preference){.row .bar i{transition:width .5s ease}}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+  <div class="top">
+    <h1 id="title">Daily Paper Index</h1>
+    <div class="nav">
+      <button id="prev" aria-label="Previous day">‹ Earlier</button>
+      <select id="day" aria-label="Choose a day"></select>
+      <button id="next" aria-label="Next day">Later ›</button>
+    </div>
+  </div>
+  <div class="board">
+    <div>
+      <div class="total" id="total">–</div>
+      <p class="sub" id="sub">Loading the index…</p>
+      <div class="kinds" id="kinds"></div>
+    </div>
+    <div>
+      <div class="rows" id="rows" aria-label="Records by source"></div>
+      <p class="note" id="note"></p>
+    </div>
+  </div>
+</div></header>
+
+<section class="band controls"><div class="wrap">
+  <div class="ctl">
+    <input type="search" id="q" placeholder="Search titles, authors, abstracts, fields…" aria-label="Search">
+    <select id="src" aria-label="Source"><option value="">All sources</option></select>
+    <select id="fld" aria-label="Field"><option value="">All fields</option></select>
+  </div>
+  <div class="meta">
+    <div class="chips" id="chips"></div>
+    <span id="count"></span>
+  </div>
+</div></section>
+
+<main class="band" style="padding-top:8px"><div class="wrap">
+  <ol class="list" id="list"></ol>
+  <div class="more"><button id="moreBtn" hidden>Show 150 more</button><button id="copyBtn">Copy this list</button><span id="copied" class="note" aria-live="polite"></span></div>
+</div></main>
+
+<footer class="band"><div class="wrap">
+  <p><b>What's indexed.</b> Everything these open sources list for each UTC day: new arXiv submissions, bioRxiv and medRxiv first versions, PhilArchive and PhilSci-Archive additions, IACR ePrint, HAL theses, reports and preprints, Zenodo publications, and Crossref, DataCite and OpenAlex records typed as preprints, reports or working papers, and dissertations. The same work found in more than one place is listed once, with the other places noted. Crossref and OpenAlex often get records days late, so each day is collected again three days later.</p>
+  <ul id="srcList"></ul>
+  <p id="updated"></p>
+</div></footer>
+
+<script>
+{
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const fmt = n => Number(n || 0).toLocaleString('en-US');
+const KINDS = {preprint:'Preprints', paper:'Papers', report:'Reports & white papers', thesis:'Theses'};
+const KIND1 = {preprint:'Preprint', paper:'Paper', report:'Report', thesis:'Thesis'};
+const PAGE = 150;
+let index = null, day = null, data = null, shown = PAGE, kind = '', filtered = [];
+
+function store(k, v){ try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); return v; } catch(e){ return null; } }
+
+async function loadIndex(){
+  try {
+    const r = await fetch('data/index.json', {cache:'no-cache'});
+    if (!r.ok) throw new Error(r.status);
+    index = await r.json();
+  } catch(e){
+    $('sub').textContent = 'The index hasn’t been built yet. The first daily run will fill this page.';
+    $('total').textContent = '0';
+    return;
+  }
+  $('day').innerHTML = index.days.map(d => `<option value="${esc(d.date)}">${esc(longDate(d.date))} · ${fmt(d.count)}</option>`).join('');
+  $('srcList').innerHTML = (index.sources || []).map(s => `<li>${esc(s.label)}</li>`).join('');
+  $('updated').textContent = 'Last updated ' + new Date(index.updated).toLocaleString();
+  const want = location.hash.slice(1);
+  openDay(index.days.some(d => d.date === want) ? want : index.days[0]?.date);
+}
+
+function longDate(d){
+  const [y,m,dd] = d.split('-').map(Number);
+  return new Date(Date.UTC(y, m-1, dd)).toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric', timeZone:'UTC'});
+}
+
+async function openDay(d){
+  if (!d) return;
+  day = d; $('day').value = d;
+  if (location.hash.slice(1) !== d) history.replaceState(null, '', '#' + d);
+  const i = index.days.findIndex(x => x.date === d);
+  $('prev').disabled = i >= index.days.length - 1;
+  $('next').disabled = i <= 0;
+  $('sub').textContent = 'Loading ' + longDate(d) + '…';
+  $('list').innerHTML = '';
+  try {
+    const r = await fetch('data/' + d + '.json');
+    if (!r.ok) throw new Error(r.status);
+    data = await r.json();
+  } catch(e){
+    data = null;
+    $('total').textContent = fmt(index.days[i]?.count);
+    $('sub').textContent = 'This day’s records aren’t in this copy of the index.';
+    $('rows').innerHTML = ''; $('kinds').innerHTML = '';
+    $('count').textContent = '';
+    return;
+  }
+  $('src').value = ''; $('fld').value = '';
+  buildDay(); apply();
+}
+
+function counts(key, items){
+  const m = new Map();
+  for (const it of items) { const v = it[key]; if (v) m.set(v, (m.get(v) || 0) + 1); }
+  return [...m].sort((a,b) => b[1] - a[1]);
+}
+
+function buildDay(){
+  const items = data.items;
+  $('title').textContent = 'New papers, ' + longDate(data.date);
+  $('total').textContent = fmt(items.length);
+  $('sub').textContent = 'works first listed on ' + longDate(data.date) + ' (UTC), across ' + counts('s', items).length + ' sources';
+  $('kinds').innerHTML = Object.keys(KINDS).map(k => `<div><b>${fmt(data.kinds?.[k] || 0)}</b><span>${KINDS[k]}</span></div>`).join('');
+  const bySrc = counts('s', items);
+  $('src').innerHTML = '<option value="">All sources</option>' + bySrc.map(([s,n]) => `<option value="${esc(s)}">${esc(s)} (${fmt(n)})</option>`).join('');
+  const byF = counts('f', items).slice(0, 300);
+  $('fld').innerHTML = '<option value="">All fields</option>' + byF.map(([s,n]) => `<option value="${esc(s)}">${esc(s.length > 60 ? s.slice(0,58) + '…' : s)} (${fmt(n)})</option>`).join('');
+  const top = bySrc.slice(0, 12), max = top[0]?.[1] || 1;
+  $('rows').innerHTML = top.map(([s,n]) => `<button class="row" data-s="${esc(s)}"><span class="nm">${esc(s)}</span><span class="bar"><i style="width:${(n/max*100).toFixed(1)}%"></i></span><span class="n">${fmt(n)}</span></button>`).join('')
+    + (bySrc.length > 12 ? `<p class="note">and ${bySrc.length - 12} more sources in the Source menu</p>` : '');
+  const errs = Object.values(data.status || {}).filter(s => !s.status.startsWith('ok'));
+  $('note').innerHTML = errs.length
+    ? `<span class="err">Not collected this day:</span> ${errs.map(e => esc(e.label)).join('; ')}.`
+    : 'Every source answered for this day.';
+  $('chips').innerHTML = [['', 'All kinds']].concat(Object.entries(KINDS)).map(([k,l]) => `<button class="chip" data-k="${k}" aria-pressed="${k === kind}">${esc(l)}</button>`).join('');
+}
+
+function apply(){
+  if (!data) return;
+  const q = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const s = $('src').value, f = $('fld').value;
+  filtered = data.items.filter(it => {
+    if (kind && it.k !== kind) return false;
+    if (s && it.s !== s) return false;
+    if (f && it.f !== f) return false;
+    if (!q.length) return true;
+    const hay = ((it._h) || (it._h = [it.t, (it.a || []).join(' '), it.f, it.x, it.s, it.pub, it.doi].join(' ').toLowerCase()));
+    return q.every(w => hay.includes(w));
+  });
+  for (const b of document.querySelectorAll('.row')) b.classList.toggle('on', b.dataset.s === s);
+  for (const b of document.querySelectorAll('.chip')) b.setAttribute('aria-pressed', String(b.dataset.k === kind));
+  shown = PAGE; render();
+}
+
+function render(){
+  const part = filtered.slice(0, shown);
+  $('list').innerHTML = part.map(it => {
+    const au = (it.a || []).join(', ') + (it.n ? ` + ${it.n - it.a.length} more` : '');
+    const tags = [it.f && esc(it.f), it.pub && esc(it.pub), it.doi && `<a href="https://doi.org/${encodeURI(it.doi)}">doi:${esc(it.doi)}</a>`, it.also && 'also in ' + esc(it.also.join(', '))].filter(Boolean);
+    return `<li class="item"><div class="kind">${esc(KIND1[it.k] || it.k)}<em>${esc(it.s)}</em></div><div>
+      <h3><a href="${esc(/^https?:/.test(it.u) ? it.u : '#')}">${esc(it.t)}</a></h3>
+      ${au ? `<p class="by">${esc(au)}</p>` : ''}
+      ${tags.length ? `<p class="tags">${tags.map(t => `<span>${t}</span>`).join('')}</p>` : ''}
+      ${it.x ? `<details><summary>Abstract</summary><p>${esc(it.x)}</p></details>` : ''}
+    </div></li>`;
+  }).join('') || `<li class="empty">Nothing matches. Try fewer words, or clear the source and field menus.</li>`;
+  $('count').textContent = `Showing ${fmt(part.length)} of ${fmt(filtered.length)} records`;
+  $('moreBtn').hidden = shown >= filtered.length;
+}
+
+let t;
+$('q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { apply(); }, 180); });
+$('src').addEventListener('change', apply);
+$('fld').addEventListener('change', apply);
+$('chips').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) { kind = b.dataset.k; apply(); } });
+$('rows').addEventListener('click', e => { const b = e.target.closest('.row'); if (b) { $('src').value = $('src').value === b.dataset.s ? '' : b.dataset.s; apply(); $('list').scrollIntoView({behavior:'smooth'}); } });
+$('moreBtn').addEventListener('click', () => { shown += PAGE; render(); });
+$('day').addEventListener('change', e => openDay(e.target.value));
+$('prev').addEventListener('click', () => { const i = index.days.findIndex(x => x.date === day); if (index.days[i+1]) openDay(index.days[i+1].date); });
+$('next').addEventListener('click', () => { const i = index.days.findIndex(x => x.date === day); if (i > 0) openDay(index.days[i-1].date); });
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h && h !== day && index?.days.some(d => d.date === h)) openDay(h); });
+$('copyBtn').addEventListener('click', async () => {
+  const txt = filtered.map(it => `${it.t}. ${(it.a || []).slice(0,3).join(', ')}${(it.a||[]).length > 3 || it.n ? ' et al.' : ''} (${it.s}, ${data.date}) ${it.u}`).join('\n');
+  try { await navigator.clipboard.writeText(txt); $('copied').textContent = `Copied ${fmt(filtered.length)} records.`; }
+  catch(e){ $('copied').textContent = 'Copying isn’t allowed here; select the list and copy it by hand.'; }
+});
+
+loadIndex();
+}
+</script>
+</body>
+</html>

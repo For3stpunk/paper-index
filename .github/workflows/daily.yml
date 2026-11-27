@@ -1,0 +1,60 @@
+name: Daily paper index
+
+on:
+  schedule:
+    - cron: "23 6 * * *"   # 06:23 UTC: indexes yesterday (UTC) and refreshes 4 days ago for late deposits
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Index one day (YYYY-MM-DD) instead of the default"
+        required: false
+      only:
+        description: "Comma list of source keys (testing)"
+        required: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: paper-index
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Collect
+        env:
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.date }}" ]; then ARGS="$ARGS --date ${{ github.event.inputs.date }}"; else ARGS="$ARGS --days-ago 1,4"; fi
+          if [ -n "${{ github.event.inputs.only }}" ]; then ARGS="$ARGS --only ${{ github.event.inputs.only }}"; fi
+          python collect.py $ARGS
+      - name: Commit data
+        run: |
+          git config user.name "paper-index bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs
+          git commit -m "Index $(date -u +%F)" || echo "nothing to commit"
+          git pull --rebase -X ours || true
+          git push
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+  deploy:
+    needs: collect
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
