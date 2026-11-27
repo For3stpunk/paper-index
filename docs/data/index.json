@@ -1,0 +1,91 @@
+{
+"days": [
+{
+"date": "2026-11-25",
+"count": 7548,
+"kinds": {
+"preprint": 3454,
+"thesis": 411,
+"report": 645,
+"paper": 3038
+},
+"sources": {
+"Zenodo": 5132,
+"arXiv": 1391,
+"HAL": 410,
+"DataCite": 358,
+"bioRxiv": 169,
+"medRxiv": 41,
+"IACR ePrint": 28,
+"PhilSci-Archive": 19
+},
+"errors": [
+"crossref_preprints",
+"crossref_reports",
+"crossref_theses",
+"openalex_theses",
+"openalex_reports"
+],
+"generated": "2026-11-27T11:59:03Z"
+}
+],
+"sources": [
+{
+"key": "arxiv",
+"label": "arXiv"
+},
+{
+"key": "biorxiv",
+"label": "bioRxiv"
+},
+{
+"key": "medrxiv",
+"label": "medRxiv"
+},
+{
+"key": "philarchive",
+"label": "PhilArchive (PhilPapers)"
+},
+{
+"key": "philsci",
+"label": "PhilSci-Archive"
+},
+{
+"key": "iacr",
+"label": "IACR Cryptology ePrint"
+},
+{
+"key": "hal",
+"label": "HAL (theses, reports, preprints)"
+},
+{
+"key": "zenodo",
+"label": "Zenodo publications"
+},
+{
+"key": "crossref_preprints",
+"label": "Crossref posted content (SSRN, ChemRxiv, PsyArXiv, Research Square…)"
+},
+{
+"key": "crossref_reports",
+"label": "Crossref reports & working papers"
+},
+{
+"key": "crossref_theses",
+"label": "Crossref dissertations"
+},
+{
+"key": "datacite",
+"label": "DataCite theses, reports & preprints"
+},
+{
+"key": "openalex_theses",
+"label": "OpenAlex dissertations"
+},
+{
+"key": "openalex_reports",
+"label": "OpenAlex reports"
+}
+],
+"updated": "2026-11-27T11:59:03Z"
+}
