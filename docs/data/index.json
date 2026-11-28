@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-27T12:53:31Z",
+"updated": "2026-11-28T16:14:40Z",
 "sources": [
 {
 "key": "arxiv",
@@ -59,6 +59,63 @@
 }
 ],
 "days": [
+{
+"date": "2026-11-27",
+"count": 15901,
+"kinds": {
+"preprint": 3300,
+"paper": 11664,
+"thesis": 283,
+"report": 654
+},
+"sources": {
+"PhilArchive": 8180,
+"Zenodo": 5961,
+"DataCite": 362,
+"Research Square": 338,
+"bioRxiv": 288,
+"HAL": 219,
+"Preprints.org": 96,
+"PsyArXiv": 81,
+"SocArXiv": 52,
+"The Conversation Media Group Ltd": 43,
+"medRxiv": 39,
+"ChemRxiv": 27,
+"PhilSci-Archive": 24,
+"Copernicus GmbH": 23,
+"IACR ePrint": 19,
+"American Association for Cancer Research (AACR)": 18,
+"FapUNIFESP (SciELO)": 13,
+"EarthArXiv": 13,
+"XSci Ltd.": 12,
+"JMIR Publications Inc.": 8,
+"EcoEvoRxiv": 8,
+"Front Matter": 8,
+"eLife Sciences Publications, Ltd": 7,
+"Mongabay": 6,
+"Authorea": 6,
+"INPLASY - International Platform of Registered Systematic Re": 6,
+"Optica Publishing Group": 5,
+"Even3": 4,
+"University of Ottawa Library": 3,
+"Society for Artistic Research": 3,
+"Springer Science and Business Media LLC": 3,
+"openRxiv": 3,
+"Shenzhen Medical Academy of Research and Translation": 2,
+"Knowledge Futures": 2,
+"Organisation for Economic Co-Operation and Development (OECD": 2,
+"East Asia Forum": 2,
+"Real Safety AI Foundation": 2,
+"Cambridge Open Engage": 1,
+"Recognition Physics Research Institute": 1,
+"IntechOpen": 1
+},
+"errors": [
+"openalex_theses",
+"openalex_reports"
+],
+"generated": "2026-11-28T15:55:10Z"
+},
 {
 "date": "2026-11-26",
 "count": 9138,
@@ -176,22 +233,22 @@
 },
 {
 "date": "2026-11-24",
-"count": 9017,
+"count": 8911,
 "kinds": {
-"preprint": 5222,
-"paper": 2610,
+"preprint": 5204,
+"paper": 2527,
 "thesis": 441,
-"report": 744
+"report": 739
 },
 "sources": {
-"Zenodo": 4476,
+"Zenodo": 4460,
 "arXiv": 1785,
 "Research Square": 695,
 "HAL": 372,
 "DataCite": 360,
-"PhilArchive": 238,
 "bioRxiv": 221,
 "Preprints.org": 174,
+"PhilArchive": 144,
 "The Conversation Media Group Ltd": 86,
 "openRxiv": 79,
 "medRxiv": 68,
@@ -223,13 +280,13 @@
 "OSF Preprints": 3,
 "FapUNIFESP (SciELO)": 3,
 "Cassyni": 3,
-"Organisation for Economic Co-Operation and Development (OECD": 3
+"F1000 Research Ltd": 3
 },
 "errors": [
 "openalex_theses",
 "openalex_reports"
 ],
-"generated": "2026-11-27T12:53:31Z"
+"generated": "2026-11-28T16:04:56Z"
 },
 {
 "date": "2026-11-23",
@@ -287,6 +344,63 @@
 "openalex_reports"
 ],
 "generated": "2026-11-27T12:40:53Z"
+},
+{
+"date": "2026-11-20",
+"count": 8004,
+"kinds": {
+"preprint": 4659,
+"paper": 2519,
+"thesis": 275,
+"report": 551
+},
+"sources": {
+"Zenodo": 4410,
+"arXiv": 1349,
+"Research Square": 805,
+"DataCite": 366,
+"HAL": 212,
+"bioRxiv": 184,
+"Preprints.org": 150,
+"medRxiv": 76,
+"The Conversation Media Group Ltd": 49,
+"Copernicus GmbH": 43,
+"PhilArchive": 36,
+"ChemRxiv": 33,
+"Authorea": 30,
+"PsyArXiv": 29,
+"SocArXiv": 26,
+"IACR ePrint": 20,
+"engrXiv": 18,
+"EarthArXiv": 15,
+"JMIR Publications Inc.": 15,
+"Front Matter": 13,
+"eLife Sciences Publications, Ltd": 11,
+"Mongabay": 11,
+"Springer Science and Business Media LLC": 9,
+"Psychopharmacology Institute": 9,
+"American Association for Cancer Research (AACR)": 8,
+"University of Ottawa Library": 5,
+"Even3": 4,
+"EcoEvoRxiv": 4,
+"Microbiology Society": 4,
+"American Diabetes Association": 4,
+"INPLASY - International Platform of Registered Systematic Re": 4,
+"Florida International University": 3,
+"Cambridge Open Engage": 3,
+"CESifo": 3,
+"Global Council on Brain Health": 3,
+"PhilSci-Archive": 2,
+"EMBL-EBI": 2,
+"XSci Ltd.": 2,
+"Banco de la República": 2,
+"East Asia Forum": 2
+},
+"errors": [
+"openalex_theses",
+"openalex_reports"
+],
+"generated": "2026-11-28T16:14:39Z"
 }
 ]
 }
